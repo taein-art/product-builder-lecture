@@ -35,6 +35,11 @@
         </header>
 
         <main class="test-container">
+            <section class="description-section">
+                <h2>인공지능 동물상 테스트란?</h2>
+                <p>Google의 Teachable Machine 기술을 활용하여 제작된 인공지능 동물상 테스트입니다. 수만 장의 사진 데이터를 학습한 AI가 당신의 얼굴 특징을 분석하여 가장 닮은 동물상을 찾아드립니다. 업로드하신 사진은 서버에 저장되지 않으니 안심하고 테스트해보세요!</p>
+            </section>
+
             <div id="upload-area" class="upload-area">
                 <label for="image-upload" class="upload-label">
                     <span class="upload-icon">📸</span>
@@ -49,6 +54,16 @@
             <div id="label-container"></div>
             
             <div id="result-message"></div>
+
+            <section class="instructions-section">
+                <h3>테스트 이용 방법</h3>
+                <ol>
+                    <li>'사진 업로드' 버튼을 눌러 정면 얼굴 사진을 선택합니다.</li>
+                    <li>인공지능이 분석을 시작합니다 (잠시만 기다려주세요).</li>
+                    <li>당신의 얼굴과 가장 닮은 동물상 결과와 확률을 확인하세요!</li>
+                    <li>결과를 친구들과 공유해보세요.</li>
+                </ol>
+            </section>
         </main>
 
         <contact-form></contact-form>
@@ -64,6 +79,13 @@
                 (d.head || d.body).appendChild(s);
             })();
         </script>
+
+        <footer class="site-footer">
+            <p>&copy; 2026 동물상 테스트. All rights reserved.</p>
+            <nav class="footer-nav">
+                <a href="privacy.md" target="_blank">개인정보처리방침</a>
+            </nav>
+        </footer>
     </div>
 
     <script src="main.js"></script>

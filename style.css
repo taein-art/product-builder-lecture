@@ -69,6 +69,25 @@ body {
     align-items: center;
 }
 
+.description-section, .instructions-section {
+    width: 100%;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.description-section h2, .instructions-section h3 {
+    color: var(--button-bg);
+    margin-bottom: 15px;
+}
+
+.instructions-section ol {
+    padding-left: 20px;
+}
+
+.instructions-section li {
+    margin-bottom: 8px;
+}
+
 .upload-area {
     width: 100%;
 }
@@ -151,6 +170,29 @@ body {
     width: 100%;
     margin-top: 40px;
     box-sizing: border-box;
+}
+
+.site-footer {
+    margin-top: 60px;
+    padding: 40px 20px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    width: 100%;
+}
+
+.footer-nav {
+    margin-top: 15px;
+}
+
+.footer-nav a {
+    color: var(--button-bg);
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 15px;
+}
+
+.footer-nav a:hover {
+    text-decoration: underline;
 }
 
 /* Tablet and Desktop Styles */
