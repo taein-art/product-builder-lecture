@@ -1,1 +1,22 @@
-/* Add styles here */
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+}
+
+/* Tablet and Desktop Styles */
+@media (min-width: 768px) {
+    lotto-generator {
+        transform: scale(1.2);
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+    lotto-generator {
+        transform: scale(0.9);
+    }
+}
