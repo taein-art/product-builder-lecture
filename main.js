@@ -137,6 +137,90 @@ class LottoBall extends HTMLElement {
 customElements.define('lotto-generator', LottoGenerator);
 customElements.define('lotto-ball', LottoBall);
 
+class ContactForm extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                .contact-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                    background-color: var(--container-bg, #ffffff);
+                    padding: 30px;
+                    border-radius: 15px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    width: 320px;
+                    margin-top: 40px;
+                    font-family: sans-serif;
+                }
+                h2 {
+                    margin-top: 0;
+                    color: var(--text-color, #333);
+                    font-size: 20px;
+                    text-align: center;
+                }
+                .field {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+                label {
+                    font-size: 14px;
+                    color: var(--text-color, #333);
+                }
+                input, textarea {
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    background-color: var(--bg-color, #f0f0f0);
+                    color: var(--text-color, #333);
+                    font-size: 14px;
+                }
+                button {
+                    padding: 12px;
+                    background-color: var(--button-bg, #007bff);
+                    color: var(--button-text, #ffffff);
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    margin-top: 10px;
+                }
+                button:hover {
+                    opacity: 0.9;
+                }
+            </style>
+            <form class="contact-form" action="https://formspree.io/f/YOUR_ID_HERE" method="POST">
+                <h2>제휴 문의</h2>
+                <div class="field">
+                    <label>이름</label>
+                    <input type="text" name="name" required placeholder="성함을 입력하세요">
+                </div>
+                <div class="field">
+                    <label>이메일</label>
+                    <input type="email" name="_replyto" required placeholder="email@example.com">
+                </div>
+                <div class="field">
+                    <label>메시지</label>
+                    <textarea name="message" rows="4" required placeholder="문의하실 내용을 적어주세요"></textarea>
+                </div>
+                <button type="submit">문의 보내기</button>
+            </form>
+        `;
+    }
+}
+
+customElements.define('contact-form', ContactForm);
+
 // Theme Toggle Logic
 const themeToggle = document.getElementById('theme-toggle');
 themeToggle.addEventListener('click', () => {
