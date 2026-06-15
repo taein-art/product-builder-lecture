@@ -221,6 +221,44 @@ class ContactForm extends HTMLElement {
 
 customElements.define('contact-form', ContactForm);
 
+class DisqusComments extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
+            <div class="disqus-wrapper">
+                <div id="disqus_thread"></div>
+            </div>
+            <style>
+                .disqus-wrapper {
+                    background-color: var(--container-bg, #ffffff);
+                    padding: 30px;
+                    border-radius: 15px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    width: 100%;
+                    max-width: 800px;
+                    margin-top: 40px;
+                    box-sizing: border-box;
+                }
+            </style>
+        `;
+        this.loadDisqus();
+    }
+
+    loadDisqus() {
+        if (window.DISQUS) {
+            window.DISQUS.reset({
+                reload: true
+            });
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://product-builder-lecture.disqus.com/embed.js';
+        script.setAttribute('data-timestamp', +new RegExp());
+        (document.head || document.body).appendChild(script);
+    }
+}
+
+customElements.define('disqus-comments', DisqusComments);
+
 // Theme Toggle Logic
 const themeToggle = document.getElementById('theme-toggle');
 themeToggle.addEventListener('click', () => {
