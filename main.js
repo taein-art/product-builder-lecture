@@ -199,7 +199,7 @@ class ContactForm extends HTMLElement {
                     opacity: 0.9;
                 }
             </style>
-            <form class="contact-form" action="https://formspree.io/f/YOUR_ID_HERE" method="POST">
+            <form class="contact-form" action="https://formspree.io/f/xpqekgrp" method="POST">
                 <h2>제휴 문의</h2>
                 <div class="field">
                     <label>이름</label>
