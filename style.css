@@ -45,6 +45,17 @@ body {
     padding: 40px 20px;
 }
 
+.disqus-wrapper {
+    background-color: var(--container-bg, #ffffff);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 800px;
+    margin-top: 40px;
+    box-sizing: border-box;
+}
+
 /* Tablet and Desktop Styles */
 @media (min-width: 768px) {
     lotto-generator {

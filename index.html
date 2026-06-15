@@ -11,7 +11,17 @@
     <div class="app-container">
         <lotto-generator></lotto-generator>
         <contact-form></contact-form>
-        <disqus-comments></disqus-comments>
+        <div class="disqus-wrapper">
+            <div id="disqus_thread"></div>
+        </div>
+        <script>
+            (function() {
+                var d = document, s = d.createElement('script');
+                s.src = 'https://taein-1.disqus.com/embed.js';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
     </div>
     <script src="main.js"></script>
 </body>
