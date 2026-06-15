@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://taein-art.github.io/product-builder-lecture/sitemap.xml
+Sitemap: https://product-builder-lecture-1yi.pages.dev/sitemap.xml
