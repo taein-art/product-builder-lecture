@@ -77,41 +77,60 @@ class LottoGenerator extends HTMLElement {
 }
 
 class LottoBall extends HTMLElement {
+    static get observedAttributes() {
+        return ['number'];
+    }
+
     constructor() {
         super();
-        const shadow = this.attachShadow({ mode: 'open' });
+        this.attachShadow({ mode: 'open' });
+    }
 
-        const ball = document.createElement('div');
-        ball.setAttribute('class', 'ball');
-        ball.textContent = this.getAttribute('number');
+    connectedCallback() {
+        this.render();
+    }
 
-        const style = document.createElement('style');
-        style.textContent = `
-            .ball {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                font-size: 20px;
-                font-weight: bold;
-                color: white;
-                background-color: ${this.getColor(this.getAttribute('number'))};
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            }
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === 'number' && oldValue !== newValue) {
+            this.render();
+        }
+    }
+
+    render() {
+        const number = this.getAttribute('number');
+        const color = this.getColor(number);
+        this.shadowRoot.innerHTML = `
+            <style>
+                .ball {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: white;
+                    background-color: ${color};
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    animation: pop 0.3s ease-out;
+                }
+                @keyframes pop {
+                    0% { transform: scale(0.5); opacity: 0; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+            </style>
+            <div class="ball">${number}</div>
         `;
-
-        shadow.appendChild(style);
-        shadow.appendChild(ball);
     }
 
     getColor(number) {
-        if (number <= 10) return '#fbc400'; // 노란색
-        if (number <= 20) return '#69c8f2'; // 파란색
-        if (number <= 30) return '#ff7272'; // 빨간색
-        if (number <= 40) return '#aaa'; // 회색
-        return '#b0d840'; // 녹색
+        const n = parseInt(number);
+        if (n <= 10) return '#fbc400';
+        if (n <= 20) return '#69c8f2';
+        if (n <= 30) return '#ff7272';
+        if (n <= 40) return '#aaa';
+        return '#b0d840';
     }
 }
 
