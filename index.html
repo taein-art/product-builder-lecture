@@ -19,10 +19,16 @@
 
         <main class="test-container">
             <div id="upload-area" class="upload-area">
-                <button type="button" class="start-btn" onclick="initWebcam()">카메라로 시작하기</button>
+                <label for="image-upload" class="upload-label">
+                    <span class="upload-icon">📸</span>
+                    <span class="upload-text">사진을 업로드하세요</span>
+                </label>
+                <input type="file" id="image-upload" accept="image/*" onchange="handleImageUpload(event)" style="display: none;">
             </div>
             
-            <div id="webcam-container"></div>
+            <div id="image-container">
+                <img id="face-image" src="" alt="your image" style="display: none; max-width: 100%; border-radius: 15px; margin-top: 20px;">
+            </div>
             <div id="label-container"></div>
             
             <div id="result-message"></div>

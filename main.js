@@ -1,61 +1,64 @@
 const URL = "https://teachablemachine.withgoogle.com/models/uhKUL3BIa/";
 
-let model, webcam, labelContainer, maxPredictions;
+let model, labelContainer, maxPredictions;
 
-async function initWebcam() {
-    const uploadArea = document.getElementById("upload-area");
-    uploadArea.style.display = "none";
-    
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-
-    model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-
-    const flip = true;
-    webcam = new tmImage.Webcam(300, 300, flip);
-    await webcam.setup();
-    await webcam.play();
-    window.requestAnimationFrame(loop);
-
-    document.getElementById("webcam-container").appendChild(webcam.canvas);
-    labelContainer = document.getElementById("label-container");
-    labelContainer.innerHTML = '';
-    for (let i = 0; i < maxPredictions; i++) {
-        const barContainer = document.createElement("div");
-        barContainer.className = "prediction-bar-container";
-        barContainer.innerHTML = `
-            <div class="prediction-label">
-                <span class="animal-name"></span>
-                <span class="probability"></span>
-            </div>
-            <div class="prediction-bar-outer">
-                <div class="prediction-bar-inner" style="width: 0%"></div>
-            </div>
-        `;
-        labelContainer.appendChild(barContainer);
+async function loadModel() {
+    if (!model) {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
     }
 }
 
-async function loop() {
-    webcam.update();
-    await predict();
-    window.requestAnimationFrame(loop);
+async function handleImageUpload(event) {
+    const input = event.target;
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const imageElement = document.getElementById("face-image");
+        imageElement.src = e.target.result;
+        imageElement.style.display = "block";
+        
+        // Show loading state or text
+        const resultMessage = document.getElementById("result-message");
+        resultMessage.textContent = "분석 중...";
+        resultMessage.style.color = "var(--text-color)";
+
+        await loadModel();
+        await predict(imageElement);
+    };
+
+    reader.readAsDataURL(file);
 }
 
-async function predict() {
-    const prediction = await model.predict(webcam.canvas);
+async function predict(imageElement) {
+    const prediction = await model.predict(imageElement);
     let highestProb = 0;
     let winner = "";
+
+    labelContainer = document.getElementById("label-container");
+    labelContainer.innerHTML = '';
 
     for (let i = 0; i < maxPredictions; i++) {
         const animalName = prediction[i].className;
         const probability = (prediction[i].probability * 100).toFixed(0);
         
-        const barContainer = labelContainer.childNodes[i];
-        barContainer.querySelector(".animal-name").textContent = animalName;
-        barContainer.querySelector(".probability").textContent = probability + "%";
-        barContainer.querySelector(".prediction-bar-inner").style.width = probability + "%";
+        const barContainer = document.createElement("div");
+        barContainer.className = "prediction-bar-container";
+        barContainer.innerHTML = `
+            <div class="prediction-label">
+                <span class="animal-name">${animalName}</span>
+                <span class="probability">${probability}%</span>
+            </div>
+            <div class="prediction-bar-outer">
+                <div class="prediction-bar-inner" style="width: ${probability}%"></div>
+            </div>
+        `;
+        labelContainer.appendChild(barContainer);
 
         if (prediction[i].probability > highestProb) {
             highestProb = prediction[i].probability;
