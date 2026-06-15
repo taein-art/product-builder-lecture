@@ -251,7 +251,7 @@ class DisqusComments extends HTMLElement {
             return;
         }
         const script = document.createElement('script');
-        script.src = 'https://product-builder-lecture.disqus.com/embed.js';
+        script.src = 'https://taein-1.disqus.com/embed.js';
         script.setAttribute('data-timestamp', +new RegExp());
         (document.head || document.body).appendChild(script);
     }
