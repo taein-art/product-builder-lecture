@@ -1,224 +1,120 @@
-class LottoGenerator extends HTMLElement {
-    constructor() {
-        super();
-        const shadow = this.attachShadow({ mode: 'open' });
+const URL = "https://teachablemachine.withgoogle.com/models/uhKUL3BIa/";
 
-        const wrapper = document.createElement('div');
-        wrapper.setAttribute('class', 'lotto-generator');
+let model, webcam, labelContainer, maxPredictions;
 
-        const title = document.createElement('h1');
-        title.textContent = '로또 번호 추첨기';
+async function initWebcam() {
+    const uploadArea = document.getElementById("upload-area");
+    uploadArea.style.display = "none";
+    
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
 
-        const numberContainer = document.createElement('div');
-        numberContainer.setAttribute('class', 'number-container');
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
 
-        const button = document.createElement('button');
-        button.textContent = '번호 생성';
-        button.addEventListener('click', () => this.generateNumbers(numberContainer));
+    const flip = true;
+    webcam = new tmImage.Webcam(300, 300, flip);
+    await webcam.setup();
+    await webcam.play();
+    window.requestAnimationFrame(loop);
 
-        const style = document.createElement('style');
-        style.textContent = `
-            .lotto-generator {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                font-family: sans-serif;
-                background-color: var(--container-bg, #ffffff);
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            }
-            .number-container {
-                display: flex;
-                gap: 10px;
-                margin: 20px 0;
-            }
-            button {
-                padding: 10px 20px;
-                font-size: 16px;
-                cursor: pointer;
-                background-color: var(--button-bg, #007bff);
-                color: var(--button-text, #ffffff);
-                border: none;
-                border-radius: 5px;
-            }
-            h1 {
-                margin-top: 0;
-                color: var(--text-color, #333);
-            }
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    labelContainer = document.getElementById("label-container");
+    labelContainer.innerHTML = '';
+    for (let i = 0; i < maxPredictions; i++) {
+        const barContainer = document.createElement("div");
+        barContainer.className = "prediction-bar-container";
+        barContainer.innerHTML = `
+            <div class="prediction-label">
+                <span class="animal-name"></span>
+                <span class="probability"></span>
+            </div>
+            <div class="prediction-bar-outer">
+                <div class="prediction-bar-inner" style="width: 0%"></div>
+            </div>
         `;
-
-        shadow.appendChild(style);
-        shadow.appendChild(wrapper);
-        wrapper.appendChild(title);
-        wrapper.appendChild(numberContainer);
-        wrapper.appendChild(button);
-
-        this.generateNumbers(numberContainer);
-    }
-
-    generateNumbers(container) {
-        container.innerHTML = '';
-        const numbers = this.getRandomNumbers();
-        for (const number of numbers) {
-            const lottoBall = document.createElement('lotto-ball');
-            lottoBall.setAttribute('number', number);
-            container.appendChild(lottoBall);
-        }
-    }
-
-    getRandomNumbers() {
-        const numbers = new Set();
-        while (numbers.size < 6) {
-            numbers.add(Math.floor(Math.random() * 45) + 1);
-        }
-        return Array.from(numbers).sort((a, b) => a - b);
+        labelContainer.appendChild(barContainer);
     }
 }
 
-class LottoBall extends HTMLElement {
-    static get observedAttributes() {
-        return ['number'];
-    }
+async function loop() {
+    webcam.update();
+    await predict();
+    window.requestAnimationFrame(loop);
+}
 
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-    }
+async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    let highestProb = 0;
+    let winner = "";
 
-    connectedCallback() {
-        this.render();
-    }
+    for (let i = 0; i < maxPredictions; i++) {
+        const animalName = prediction[i].className;
+        const probability = (prediction[i].probability * 100).toFixed(0);
+        
+        const barContainer = labelContainer.childNodes[i];
+        barContainer.querySelector(".animal-name").textContent = animalName;
+        barContainer.querySelector(".probability").textContent = probability + "%";
+        barContainer.querySelector(".prediction-bar-inner").style.width = probability + "%";
 
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'number' && oldValue !== newValue) {
-            this.render();
+        if (prediction[i].probability > highestProb) {
+            highestProb = prediction[i].probability;
+            winner = animalName;
         }
     }
 
-    render() {
-        const number = this.getAttribute('number');
-        const color = this.getColor(number);
-        this.shadowRoot.innerHTML = `
-            <style>
-                .ball {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    font-size: 20px;
-                    font-weight: bold;
-                    color: white;
-                    background-color: ${color};
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                    animation: pop 0.3s ease-out;
-                }
-                @keyframes pop {
-                    0% { transform: scale(0.5); opacity: 0; }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-            </style>
-            <div class="ball">${number}</div>
-        `;
-    }
-
-    getColor(number) {
-        const n = parseInt(number);
-        if (n <= 10) return '#fbc400';
-        if (n <= 20) return '#69c8f2';
-        if (n <= 30) return '#ff7272';
-        if (n <= 40) return '#aaa';
-        return '#b0d840';
+    const resultMessage = document.getElementById("result-message");
+    if (winner === "강아지") {
+        resultMessage.textContent = "당신은 귀여운 강아지상입니다! 🐶";
+        resultMessage.style.color = "#ffc107";
+    } else if (winner === "고양이") {
+        resultMessage.textContent = "당신은 도도한 고양이상입니다! 🐱";
+        resultMessage.style.color = "#007bff";
     }
 }
 
-customElements.define('lotto-generator', LottoGenerator);
-customElements.define('lotto-ball', LottoBall);
-
+// Contact Form Component
 class ContactForm extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
     }
-
     connectedCallback() {
         this.render();
     }
-
     render() {
         this.shadowRoot.innerHTML = `
             <style>
                 .contact-form {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 15px;
-                    background-color: var(--container-bg, #ffffff);
-                    padding: 30px;
-                    border-radius: 15px;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                    width: 320px;
-                    margin-top: 40px;
+                    display: flex; flex-direction: column; gap: 15px;
+                    background-color: var(--container-bg, #ffffff); padding: 30px;
+                    border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                    width: 100%; max-width: 500px; margin-top: 40px; box-sizing: border-box;
                     font-family: sans-serif;
                 }
-                h2 {
-                    margin-top: 0;
-                    color: var(--text-color, #333);
-                    font-size: 20px;
-                    text-align: center;
-                }
-                .field {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 5px;
-                }
-                label {
-                    font-size: 14px;
-                    color: var(--text-color, #333);
-                }
+                h2 { margin-top: 0; color: var(--text-color, #333); font-size: 20px; text-align: center; }
+                .field { display: flex; flex-direction: column; gap: 5px; }
+                label { font-size: 14px; color: var(--text-color, #333); }
                 input, textarea {
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    background-color: var(--bg-color, #f0f0f0);
-                    color: var(--text-color, #333);
-                    font-size: 14px;
+                    padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+                    background-color: var(--bg-color, #f0f0f0); color: var(--text-color, #333);
                 }
                 button {
-                    padding: 12px;
-                    background-color: var(--button-bg, #007bff);
-                    color: var(--button-text, #ffffff);
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    margin-top: 10px;
-                }
-                button:hover {
-                    opacity: 0.9;
+                    padding: 12px; background-color: var(--button-bg, #007bff);
+                    color: var(--button-text, #ffffff); border: none; border-radius: 5px;
+                    cursor: pointer; font-weight: bold; margin-top: 10px;
                 }
             </style>
             <form class="contact-form" action="https://formspree.io/f/xpqekgrp" method="POST">
-                <h2>제휴 문의</h2>
-                <div class="field">
-                    <label>이름</label>
-                    <input type="text" name="name" required placeholder="성함을 입력하세요">
-                </div>
-                <div class="field">
-                    <label>이메일</label>
-                    <input type="email" name="_replyto" required placeholder="email@example.com">
-                </div>
-                <div class="field">
-                    <label>메시지</label>
-                    <textarea name="message" rows="4" required placeholder="문의하실 내용을 적어주세요"></textarea>
-                </div>
+                <h2>제휴 및 제작 문의</h2>
+                <div class="field"><label>이름</label><input type="text" name="name" required></div>
+                <div class="field"><label>이메일</label><input type="email" name="_replyto" required></div>
+                <div class="field"><label>메시지</label><textarea name="message" rows="4" required></textarea></div>
                 <button type="submit">문의 보내기</button>
             </form>
         `;
     }
 }
-
 customElements.define('contact-form', ContactForm);
 
 // Theme Toggle Logic
